@@ -1,16 +1,14 @@
 import { Client, Account, ID} from "appwrite"
-import conf from '../conf/conf'
-import { parseAstAsync } from "vite";
-
+import conf from '../conf/conf.js'
 
 
 export class AuthService {
-    client = new Client;
+    client = new Client();
     account;
 
     constructor(){
         this.client
-            .setEndpoint(conf.endpoint)
+            .setEndpoint(conf.appwriteUrl)
             .setProject(conf.projectId)
             
         this.account = new Account(this.client)

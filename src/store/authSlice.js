@@ -5,7 +5,7 @@ const initialState = {
   userData: null
 }
 
-export const counterSlice = createSlice({
+export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
