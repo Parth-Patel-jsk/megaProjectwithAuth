@@ -54,7 +54,7 @@ function App() {
 
   return (
     <IdeasProvider>
-      <Navbar />
+      {/* <Navbar /> */}
       <main>{isLoginPage ? <Login /> : <Home />}</main>
     </IdeasProvider>
   )
