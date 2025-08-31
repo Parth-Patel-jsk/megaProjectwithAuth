@@ -6,56 +6,77 @@ import { login, logout } from './store/authSlice'
 import { Home } from "./pages/Home"
 import { Login } from "./pages/Login"
 import { IdeasProvider } from './lib/context/ideas'
+import  Header  from './components/Header' 
+import  Footer  from './components/Footer' 
 
-function Navbar() {
-  const user = useSelector((state) => state.auth.user)
-  const dispatch = useDispatch()
-
-  return (
-    <nav>
-      <a href="/">Idea tracker</a>
-      <div>
-        {user ? (
-          <>
-            <span>{user.email}</span>
-            <button type="button" onClick={() => {
-              authService.logout()
-              dispatch(logout())
-            }}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <a href="/login">Login</a>
-        )}
-      </div>
-    </nav>
-  )
-}
 
 function App() {
   const [loading, setLoading] = useState(true)
   const dispatch = useDispatch()
+  const authStatus = useSelector(state => state.auth.status) // Get auth status from Redux
   const isLoginPage = window.location.pathname === "/login"
 
   useEffect(() => {
-    authService.getCurrentUser()
-      .then((userData) => {
+    const checkAuth = async () => {
+      try {
+        const userData = await authService.getCurrentUser()
         if (userData) {
           dispatch(login(userData))
         } else {
           dispatch(logout())
         }
-      })
-      .finally(() => setLoading(false))
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        dispatch(logout())
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAuth()
   }, [dispatch])
 
-  if (loading) return null
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    )
+  }
+
+  // Conditional rendering based on auth status and current page
+  const renderContent = () => {
+    // If user is not authenticated and not on login page, show login
+    if (!authStatus && !isLoginPage) {
+      return <Login />
+    }
+    
+    // If user is authenticated and on login page, redirect to home
+    if (authStatus && isLoginPage) {
+      // You might want to use React Router for proper navigation
+      window.location.href = "/"
+      return null
+    }
+    
+    // If on login page and not authenticated, show login
+    if (isLoginPage) {
+      return <Login />
+    }
+    
+    // Default to home for authenticated users
+    return <Home />
+  }
 
   return (
     <IdeasProvider>
-      {/* <Navbar /> */}
-      <main>{isLoginPage ? <Login /> : <Home />}</main>
+      <div className="app">
+        <Header />
+        <main className="main-content">
+          {renderContent()}
+        </main>
+        <Footer />
+      </div>
     </IdeasProvider>
   )
 }
